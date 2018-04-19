@@ -14,7 +14,7 @@ io.on('connection', function (socket) {
 
     socket.on('create or join', function (room) {
         console.log('create or join to room ', room);
-        
+
         var myRoom = io.sockets.adapter.rooms[room] || { length: 0 };
         var numClients = myRoom.length;
 
@@ -23,7 +23,7 @@ io.on('connection', function (socket) {
         if (numClients == 0) {
             socket.join(room);
             socket.emit('created', room);
-        } else if (numClients == 1) {
+        } else if (numClients < 5) {
             socket.join(room);
             socket.emit('joined', room);
         } else {
@@ -40,20 +40,16 @@ io.on('connection', function (socket) {
     });
 
     socket.on('offer', function(event){
-        socket.broadcast.to(event.room).emit('offer',event.sdp);
+        socket.broadcast.to(event.room).emit('offer', event.sdp);
     });
 
     socket.on('answer', function(event){
-        socket.broadcast.to(event.room).emit('answer',event.sdp);
-    });
-
-    socket.on('toggleAudio', function(event){
-        socket.broadcast.to(event.room).emit('toggleAudio', event.message);
+        socket.broadcast.to(event.room).emit('answer', event.sdp);
     });
 
 });
 
 // listener
-http.listen(3000, function () {
+http.listen(3000, '0.0.0.0', function () {
     console.log('listening on *:3000');
 });
